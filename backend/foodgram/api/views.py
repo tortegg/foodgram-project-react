@@ -27,6 +27,7 @@ class TagViewSet(ModelViewSet):
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     filter_backends = [DjangoFilterBackend]
+    search_fields = ('^name',)
 
     # def perform_create(self, serializer):
     #     serializer.save(author=self.request.user)

@@ -103,7 +103,7 @@ class AddIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
-    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
+    tags = TagSerializer(many=True, read_only=True)
     ingredients = AddIngredientSerializer(many=True)
     image = Base64ImageField(max_length=None)
     name = serializers.CharField(max_length=200)
@@ -147,6 +147,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         self.add_ingredient(ingredients, recipe)
         recipe.tags.set(tags)
         return super().update(recipe, validated_data)
+
 
 
 class FavoriteRecipeSerializer(serializers.ModelSerializer):
