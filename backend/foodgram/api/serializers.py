@@ -94,23 +94,17 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
-        return (
-                request.user.is_authenticated
-                and
-                FavoriteRecipe.objects.filter(
+        return (request.user.is_authenticated
+                and FavoriteRecipe.objects.filter(
                     user=request.user, recipe=obj
-                ).exists()
-        )
+                ).exists())
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
-        return (
-                request.user.is_authenticated
-                and
-                ShoppingCart.objects.filter(
+        return (request.user.is_authenticated
+                and ShoppingCart.objects.filter(
                     user=request.user, recipe=obj
-                ).exists()
-        )
+                ).exists())
 
     class Meta:
         model = Recipe
@@ -131,14 +125,15 @@ class AddIngredientSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data['amount'] <= 0:
             raise serializers.ValidationError(
-                f'Количество не может быть меньше нуля'
+                'Количество не может быть меньше нуля'
             )
         return data
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
-        queryset=Tag.objects.all(), many=True
+        queryset=Tag.objects.all(),
+        many=True
     )
     ingredients = AddIngredientSerializer(many=True)
     image = Base64ImageField(max_length=None)
