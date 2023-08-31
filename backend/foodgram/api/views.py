@@ -12,18 +12,21 @@ from djoser.views import UserViewSet
 from rest_framework.generics import get_object_or_404
 from weasyprint import HTML
 
-from recipes.models import Tag, Recipe, FavoriteRecipe, ShoppingCart, Ingredient, RecipeIngredient
+from recipes.models import (Tag, Recipe, FavoriteRecipe,
+                            ShoppingCart, Ingredient, RecipeIngredient)
 from users.models import CustomUser, FollowUser
-from .serializers import TagSerializer, RecipeSerializer, RecipeCreateSerializer, OutIngredientSerializer, \
-    FavoriteRecipeSerializer, ShoppingCartSerializer, CustomUserSerializer, FollowListSerializer, FollowSerializer
-from .filters import IngredientFilterSet, RecipeFilter
+from .serializers import (TagSerializer, RecipeSerializer,
+                          RecipeCreateSerializer, OutIngredientSerializer,
+                          FollowListSerializer, FollowSerializer)
+from .filters import RecipeFilter
 from .pagination import CustomPaginator
 
 
 class CustomUserViewSet(UserViewSet):
     pagination_class = CustomPaginator
 
-    @action(['GET'], detail=False, permission_classes=[IsAuthenticated])
+    @action(['GET'], detail=False,
+            permission_classes=[IsAuthenticated])
     def me(self, request, *args, **kwargs):
         self.get_object = self.get_instance
         return self.retrieve(request, *args, **kwargs)
@@ -39,7 +42,6 @@ class CustomUserViewSet(UserViewSet):
         )
         return self.get_paginated_response(serializer.data)
 
-
     @action(methods=['POST', 'DELETE'], detail=True)
     def subscribe(self, request, id):
         """ Подписаться/отписаться """
@@ -52,7 +54,8 @@ class CustomUserViewSet(UserViewSet):
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+            return Response(data=serializer.data,
+                            status=status.HTTP_201_CREATED)
 
         subscription = get_object_or_404(
             FollowUser, user=request.user, author=author
@@ -72,15 +75,13 @@ class RecipeViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
 
-    # def perform_create(self, serializer):
-    #     serializer.save(author=self.request.user)
-
     def get_serializer_class(self):
         if self.action in ('retrieve', 'list'):
             return RecipeSerializer
         return RecipeCreateSerializer
 
-    @action(methods=['POST', 'DELETE'], detail=True, permission_classes=[IsAuthenticated, ])
+    @action(methods=['POST', 'DELETE'], detail=True,
+            permission_classes=[IsAuthenticated, ])
     def favorite(self, request, pk=None):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
@@ -98,7 +99,9 @@ class RecipeViewSet(ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
         else:
-            favorite, created = FavoriteRecipe.objects.get_or_create(user=user, recipe=recipe)
+            favorite, created = FavoriteRecipe.objects.get_or_create(
+                user=user, recipe=recipe
+            )
             if created is False:
                 return Response(
                     {'message': 'Рецепт уже в избранном'},
@@ -110,7 +113,8 @@ class RecipeViewSet(ModelViewSet):
                     status=status.HTTP_201_CREATED
                 )
 
-    @action(methods=['POST', 'DELETE'], detail=True, permission_classes=[IsAuthenticated, ])
+    @action(methods=['POST', 'DELETE'], detail=True,
+            permission_classes=[IsAuthenticated, ])
     def shopping_cart(self, request, pk=None):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
@@ -128,7 +132,9 @@ class RecipeViewSet(ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
         else:
-            cart, created = ShoppingCart.objects.get_or_create(user=user, recipe=recipe)
+            cart, created = ShoppingCart.objects.get_or_create(
+                user=user, recipe=recipe
+            )
             if created is False:
                 return Response(
                     {'message': 'Рецепт уже в корзине'},
@@ -153,8 +159,10 @@ class RecipeViewSet(ModelViewSet):
             permission_classes=(IsAuthenticated,))
     def download_shopping_cart(self, request):
         ingredients = self.get_list_ingredients(request.user)
-        html_template = render_to_string('recipes/pdf_template.html',
-                                         {'ingredients': ingredients})
+        html_template = render_to_string(
+            'recipes/pdf_template.html',
+            {'ingredients': ingredients}
+        )
         html = HTML(string=html_template)
         result = html.write_pdf()
         response = HttpResponse(result, content_type='application/pdf;')

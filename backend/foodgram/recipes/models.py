@@ -6,7 +6,6 @@ from colorfield.fields import ColorField
 User = get_user_model()
 
 
-# Create your models here.
 class Tag(models.Model):
     name = models.CharField(
         max_length=200,
@@ -62,7 +61,9 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Автор'
     )
-    cooking_time = models.PositiveIntegerField(verbose_name='Время приготовления')
+    cooking_time = models.PositiveIntegerField(
+        verbose_name='Время приготовления'
+    )
     text = models.TextField(verbose_name='Описание')
     ingredients = models.ManyToManyField(
         Ingredient,

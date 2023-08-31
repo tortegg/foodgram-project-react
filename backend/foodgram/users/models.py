@@ -14,7 +14,12 @@ class CustomUser(AbstractUser):
         max_length=150,
         blank=False,
         verbose_name='Никнейм',
-        validators=[RegexValidator(regex=r'^[\w.@+-]+\Z', message='Недопустимое имя')],
+        validators=[
+            RegexValidator(
+                regex=r'^[\w.@+-]+\Z',
+                message='Недопустимое имя'
+            )
+        ],
         unique=True
     )
     first_name = models.CharField(
