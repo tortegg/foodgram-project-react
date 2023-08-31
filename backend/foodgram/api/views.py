@@ -153,7 +153,6 @@ class RecipeViewSet(ModelViewSet):
                     status=status.HTTP_201_CREATED
                 )
 
-
     def convert_txt(self, shop_list):
         file_name = settings.SHOPPING_CART_FILE
         lines = []
