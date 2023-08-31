@@ -1,16 +1,15 @@
-from django.template.loader import render_to_string
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.db.models import F, Sum
+from django.db.models import Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
 from djoser.views import UserViewSet
 from rest_framework.generics import get_object_or_404
-from weasyprint import HTML
+from django.conf import settings
 
 from recipes.models import (Tag, Recipe, FavoriteRecipe,
                             ShoppingCart, Ingredient, RecipeIngredient)
@@ -20,7 +19,7 @@ from .serializers import (TagSerializer, RecipeSerializer,
                           FollowListSerializer, FollowSerializer)
 from .filters import RecipeFilter
 from .pagination import CustomPaginator
-from permissions import IsAuthorOrReadOnly
+from .permissions import IsAuthorOrReadOnly
 
 
 class CustomUserViewSet(UserViewSet):
@@ -75,7 +74,7 @@ class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
-    permission_classes = IsAuthorOrReadOnly
+    permission_classes = (IsAuthorOrReadOnly,)
 
     def get_serializer_class(self):
         if self.action in ('retrieve', 'list'):
@@ -148,29 +147,35 @@ class RecipeViewSet(ModelViewSet):
                     status=status.HTTP_201_CREATED
                 )
 
-    def get_list_ingredients(self, user):
-        ingredients = RecipeIngredient.objects.filter(
-            recipe__shopping_recipe__user=user).values(
-            name=F('ingredient__name'),
-            measurement_unit=F('ingredient__measurement_unit')
-        ).annotate(amount=Sum('amount')).values_list(
-            'ingredient__name', 'amount', 'ingredient__measurement_unit')
-        return ingredients
 
-    @action(detail=False, methods=['GET'],
-            permission_classes=(IsAuthenticated,))
-    def download_shopping_cart(self, request):
-        ingredients = self.get_list_ingredients(request.user)
-        html_template = render_to_string(
-            'recipes/pdf_template.html',
-            {'ingredients': ingredients}
-        )
-        html = HTML(string=html_template)
-        result = html.write_pdf()
-        response = HttpResponse(result, content_type='application/pdf;')
-        response['Content-Disposition'] = 'inline; filename=shopping_list.pdf'
-        response['Content-Transfer-Encoding'] = 'binary'
+    def convert_txt(self, shop_list):
+        file_name = settings.SHOPPING_CART_FILE
+        lines = []
+        for ing in shop_list:
+            name = ing['ingredient__name']
+            measurement_unit = ing['ingredient__measurement_unit']
+            amount = ing['ingredient_total']
+            lines.append(f'{name} ({measurement_unit}) - {amount}')
+        lines.append('\nFoodGram Service')
+        content = '\n'.join(lines)
+        content_type = 'text/plain,charset=utf8'
+        response = HttpResponse(content, content_type=content_type)
+        response['Content-Disposition'] = f'attachment; filename={file_name}'
         return response
+
+    @action(
+        detail=False,
+        permission_classes=(IsAuthenticated,)
+    )
+    def download_shopping_cart(self, request):
+        ingredients = RecipeIngredient.objects.filter(
+            recipe__cart_recipe__user=request.user
+        ).values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).order_by(
+            'ingredient__name'
+        ).annotate(ingredient_total=Sum('amount'))
+        return self.convert_txt(ingredients)
 
 
 class IngredientViewSet(ModelViewSet):
