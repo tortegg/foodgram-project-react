@@ -9,25 +9,28 @@ services:
 
   db:
     image: postgres:13.10
-    env_file: ../.env
+    env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
   backend:
-    build: ../backend/foodgram
-    env_file: ../.env
+    image: tortegg/foodgram_backend
+    restart: always
+    env_file: .env
+    depends_on:
+      - db
     volumes:
       - static:/backend_static
       - media:/app/media
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: tortegg/foodgram_frontend
+    depends_on:
+      - backend
     volumes:
       - ../frontend/:/app/result_build/
   nginx:
     image: nginx:1.19.3
     ports:
-      - "8000:80"
+      - "6000:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
