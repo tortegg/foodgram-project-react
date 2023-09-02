@@ -149,9 +149,9 @@ SHOPPING_CART_FILE = 'shopping_cart.txt'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_PERMISSION_CLASSES': [
-    #     'rest_framework.permissions.IsAuthenticated',
-    # ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -166,3 +166,5 @@ REST_FRAMEWORK = {
 DJOSER = {
     'LOGIN_FIELD': 'email',
 }
+
+CSRF_TRUSTED_ORIGINS = ['https://158.160.72.45', 'https://127.0.0.1', 'https://localhost', 'https://foodgram-tortegg.servebeer.com']

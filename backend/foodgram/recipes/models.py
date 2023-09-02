@@ -5,19 +5,21 @@ from colorfield.fields import ColorField
 
 User = get_user_model()
 
+LEN_200 = 200
+
 
 class Tag(models.Model):
+    """Модель тега."""
     name = models.CharField(
-        max_length=200,
+        max_length=LEN_200,
         unique=True
     )
     color = ColorField(default='#FF0000')
     slug = models.SlugField(
-        max_length=200,
+        max_length=LEN_200,
         unique=True)
 
     class Meta:
-        ordering = ('-id',)
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
 
@@ -26,18 +28,19 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
+    """Модель ингредиента."""
     name = models.CharField(
         verbose_name='Ингредиент',
-        max_length=200
+        max_length=LEN_200
     )
     measurement_unit = models.CharField(
         verbose_name='Единицы измерения',
-        max_length=200,
+        max_length=LEN_200,
         null=True
     )
 
     class Meta:
-        ordering = ('-id',)
+        ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
 
@@ -46,9 +49,10 @@ class Ingredient(models.Model):
 
 
 class Recipe(models.Model):
+    """Модель рецепта."""
     name = models.CharField(
         verbose_name='Название рецепта',
-        max_length=200
+        max_length=LEN_200
     )
     tags = models.ManyToManyField(
         Tag,
@@ -89,6 +93,7 @@ class Recipe(models.Model):
 
 
 class RecipeIngredient(models.Model):
+    """Модель связи ингредиента и рецепта."""
     recipe = models.ForeignKey(
         Recipe,
         related_name='recipe_ingredients',
@@ -118,6 +123,7 @@ class RecipeIngredient(models.Model):
 
 
 class FavoriteRecipe(models.Model):
+    """Модель избранного рецепта."""
     user = models.ForeignKey(
         User,
         verbose_name='Пользователь',
@@ -147,6 +153,7 @@ class FavoriteRecipe(models.Model):
 
 
 class ShoppingCart(models.Model):
+    """Модель рецепта в корзине."""
     recipe = models.ForeignKey(
         Recipe,
         verbose_name='Рецепт',

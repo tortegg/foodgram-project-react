@@ -4,6 +4,7 @@ from django.core.validators import RegexValidator
 
 
 class CustomUser(AbstractUser):
+    """Модель пользователя."""
     email = models.EmailField(
         max_length=254,
         blank=False,
@@ -40,6 +41,7 @@ class CustomUser(AbstractUser):
 
 
 class FollowUser(models.Model):
+    """Модель подписки пользователя на автора рецепта."""
     user = models.ForeignKey(
         CustomUser,
         on_delete=models.CASCADE,

@@ -28,7 +28,7 @@ services:
     volumes:
       - ../frontend/:/app/result_build/
   nginx:
-    image: nginx:1.19.3
+    image: tortegg/foodgram_gateway
     ports:
       - "6000:80"
     volumes:

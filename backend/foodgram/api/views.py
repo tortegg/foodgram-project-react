@@ -1,42 +1,42 @@
-from rest_framework import status
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.response import Response
+from django.conf import settings
 from django.db.models import Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
 from djoser.views import UserViewSet
+from recipes.models import (FavoriteRecipe, Ingredient, Recipe,
+                            RecipeIngredient, ShoppingCart, Tag)
+from rest_framework import filters, status
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from django.conf import settings
-
-from recipes.models import (Tag, Recipe, FavoriteRecipe,
-                            ShoppingCart, Ingredient, RecipeIngredient)
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 from users.models import CustomUser, FollowUser
-from .serializers import (TagSerializer, RecipeSerializer,
-                          RecipeCreateSerializer, OutIngredientSerializer,
-                          FollowListSerializer, FollowSerializer)
+
 from .filters import RecipeFilter
 from .pagination import CustomPaginator
 from .permissions import IsAuthorOrReadOnly
+from .serializers import (FollowListSerializer, FollowSerializer,
+                          OutIngredientSerializer, RecipeCreateSerializer,
+                          RecipeSerializer, TagSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
+    """ViewSet пользователя."""
     permission_classes = (AllowAny,)
     pagination_class = CustomPaginator
 
     @action(['GET'], detail=False,
-            permission_classes=[IsAuthenticated])
+            permission_classes=(IsAuthenticated,))
     def me(self, request, *args, **kwargs):
         self.get_object = self.get_instance
         return self.retrieve(request, *args, **kwargs)
 
     @action(methods=['GET'], detail=False,
-            permission_classes=IsAuthenticated,
+            permission_classes=(IsAuthenticated,),
             pagination_class=CustomPaginator)
     def subscriptions(self, request):
-        """ Отоброжение подписок """
+        """Отоброжение подписок."""
         subscription_list = self.paginate_queryset(
             CustomUser.objects.filter(followed__user=request.user)
         )
@@ -46,9 +46,9 @@ class CustomUserViewSet(UserViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(methods=['POST', 'DELETE'], detail=True,
-            permission_classes=IsAuthenticated)
+            permission_classes=(IsAuthenticated,))
     def subscribe(self, request, id):
-        """ Подписаться/отписаться """
+        """Подписаться/отписаться."""
         author = get_object_or_404(CustomUser, id=id)
         if request.method == 'POST':
             user = self.request.user
@@ -69,6 +69,7 @@ class CustomUserViewSet(UserViewSet):
 
 
 class TagViewSet(ModelViewSet):
+    """ViewSet тегов."""
     permission_classes = (AllowAny,)
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
@@ -76,6 +77,7 @@ class TagViewSet(ModelViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
+    """ViewSet рецептов."""
     queryset = Recipe.objects.all()
     pagination_class = CustomPaginator
     filter_backends = (DjangoFilterBackend,)
@@ -90,6 +92,7 @@ class RecipeViewSet(ModelViewSet):
     @action(methods=['POST', 'DELETE'], detail=True,
             permission_classes=(IsAuthenticated,))
     def favorite(self, request, pk=None):
+        """Добавление/удаление избранного рецепта."""
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
         favorite = FavoriteRecipe.objects.filter(user=user, recipe=recipe)
@@ -123,6 +126,7 @@ class RecipeViewSet(ModelViewSet):
     @action(methods=['POST', 'DELETE'], detail=True,
             permission_classes=(IsAuthenticated,))
     def shopping_cart(self, request, pk=None):
+        """Добавление/удаление рецепта в корзине."""
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
         cart = ShoppingCart.objects.filter(user=user, recipe=recipe)
@@ -173,6 +177,7 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
+        """Скачивание ингредиентов из корзины."""
         ingredients = RecipeIngredient.objects.filter(
             recipe__cart_recipe__user=request.user
         ).values(
@@ -184,6 +189,7 @@ class RecipeViewSet(ModelViewSet):
 
 
 class IngredientViewSet(ModelViewSet):
+    """ViewSet ингредиентов."""
     queryset = Ingredient.objects.all()
     serializer_class = OutIngredientSerializer
     pagination_class = None
