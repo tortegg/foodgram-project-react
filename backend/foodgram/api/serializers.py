@@ -195,7 +195,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             )
         return tag
 
-
     @staticmethod
     def validate_ingredients(ingredients):
         if not ingredients:
