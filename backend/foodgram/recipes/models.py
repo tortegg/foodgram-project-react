@@ -1,11 +1,11 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-
 from colorfield.fields import ColorField
 
-User = get_user_model()
+from utils.validators import validate_less_than_zero, validate_required
+from utils.static_params import LEN_200
 
-LEN_200 = 200
+User = get_user_model()
 
 
 class Tag(models.Model):
@@ -66,7 +66,8 @@ class Recipe(models.Model):
         verbose_name='Автор'
     )
     cooking_time = models.PositiveIntegerField(
-        verbose_name='Время приготовления'
+        verbose_name='Время приготовления',
+        validators=[validate_less_than_zero, validate_required]
     )
     text = models.TextField(verbose_name='Описание')
     ingredients = models.ManyToManyField(
@@ -106,7 +107,10 @@ class RecipeIngredient(models.Model):
         related_name='ingredient_recipe',
         verbose_name='Ингредиент'
     )
-    amount = models.PositiveIntegerField(verbose_name='Количество')
+    amount = models.PositiveIntegerField(
+        verbose_name='Количество',
+        validators=[validate_less_than_zero]
+    )
 
     class Meta:
         verbose_name = 'Ингредиент в рецепте'

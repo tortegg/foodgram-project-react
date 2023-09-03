@@ -2,17 +2,20 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 
+LEN_254 = 254
+LEN_150 = 150
+
 
 class CustomUser(AbstractUser):
     """Модель пользователя."""
     email = models.EmailField(
-        max_length=254,
+        max_length=LEN_254,
         blank=False,
         verbose_name='Почта',
         unique=True
     )
     username = models.CharField(
-        max_length=150,
+        max_length=LEN_150,
         blank=False,
         verbose_name='Никнейм',
         validators=[
@@ -24,12 +27,12 @@ class CustomUser(AbstractUser):
         unique=True
     )
     first_name = models.CharField(
-        max_length=150,
+        max_length=LEN_150,
         blank=False,
         verbose_name='Имя'
     )
     last_name = models.CharField(
-        max_length=150,
+        max_length=LEN_150,
         blank=False,
         verbose_name='Фамилия'
     )

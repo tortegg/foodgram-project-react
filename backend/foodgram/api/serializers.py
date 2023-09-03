@@ -3,17 +3,21 @@ import base64
 from django.core.files.base import ContentFile
 from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from recipes.models import (FavoriteRecipe, Ingredient, Recipe,
-                            RecipeIngredient, ShoppingCart, Tag)
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
-from users.models import CustomUser, FollowUser
 
-LEN_200 = 200
+from recipes.models import (
+    FavoriteRecipe, Ingredient, Recipe,
+    RecipeIngredient, ShoppingCart, Tag
+)
+from users.models import CustomUser, FollowUser
+from utils.validators import validate_less_than_zero, validate_required
+from utils.static_params import LEN_200
 
 
 class Base64ImageField(serializers.ImageField):
     """Метод для загрузки картинки через Base64."""
+
     def to_internal_value(self, data):
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
@@ -24,6 +28,7 @@ class Base64ImageField(serializers.ImageField):
 
 class CustomCreateUserSerializer(UserCreateSerializer):
     """Создание пользователя."""
+
     class Meta:
         model = CustomUser
         fields = '__all__'
@@ -74,6 +79,7 @@ class CustomUserSerializer(UserSerializer):
 
 class TagSerializer(serializers.ModelSerializer):
     """Список тегов."""
+
     class Meta:
         model = Tag
         fields = '__all__'
@@ -81,6 +87,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 class OutIngredientSerializer(serializers.ModelSerializer):
     """Список ингредиентов."""
+
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
@@ -147,12 +154,14 @@ class AddIngredientSerializer(serializers.ModelSerializer):
         model = RecipeIngredient
         fields = ('id', 'amount')
 
-    def validate(self, data):
-        if data['amount'] <= 0:
-            raise serializers.ValidationError(
-                'Количество не может быть меньше нуля'
+    @staticmethod
+    def validate_amount(data):
+        return validate_less_than_zero(
+            data,
+            message=(
+                'Количество ингредиента не может быть меньше или равно нулю.'
             )
-        return data
+        )
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
@@ -179,7 +188,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def validate_cooking_time(time):
         if time <= 0:
             raise serializers.ValidationError(
-                'Время готовки не может быть меньше или равно нулю'
+                'Время готовки не может быть меньше или равно нулю.'
             )
         if not time:
             raise serializers.ValidationError(
@@ -189,48 +198,31 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def validate_tags(tag):
-        if not tag:
-            raise serializers.ValidationError(
-                'Нужно указать минимум 1 тег.'
-            )
-        return tag
+        return validate_required(tag)
 
     @staticmethod
-    def validate_ingredients(ingredients):
-        if not ingredients:
+    def validate_ingredients(data):
+        ids = [item['id'] for item in data]
+        if len(ids) != len(set(ids)):
             raise serializers.ValidationError(
-                'Нужно указать минимум 1 ингредиент.'
+                'Ингредиенты в рецепте не должны повторяться.'
             )
-        ingredient_id_list = [item['id'] for item in ingredients]
-        unique_ingredient_id_list = set(ingredient_id_list)
-        if len(ingredient_id_list) != len(unique_ingredient_id_list):
-            raise serializers.ValidationError(
-                'Ингредиенты должны быть уникальны.'
-            )
-        return ingredients
+        return validate_required(data)
 
     @staticmethod
     def validate_name(name):
-        if not name:
-            raise serializers.ValidationError(
-                'Обязательное поле.'
-            )
-        return name
+        return validate_required(name)
 
     @staticmethod
     def validate_text(text):
-        if not text:
-            raise serializers.ValidationError(
-                'Обязательное поле.'
-            )
-        return text
+        return validate_required(text)
 
     @staticmethod
     def add_ingredient(recipe, tags, ingredients):
         recipe.tags.set(tags)
         ingredients_to_add = [
             RecipeIngredient(
-                ingredient=ingredient.get('id'),
+                ingredient=ingredient['id'],
                 recipe=recipe,
                 amount=ingredient['amount'],
             ) for ingredient in ingredients
