@@ -3,10 +3,9 @@ from django_filters import FilterSet, rest_framework as filters
 from recipes.models import Ingredient, Recipe, Tag
 
 
-class IngredientFilterSet(filters.FilterSet):
+class IngredientFilterSet(FilterSet):
     """Фильтр ингредиентов при создании рецепта."""
-    ingredient = filters.CharFilter(
-        field_name='name',
+    name = filters.CharFilter(
         lookup_expr='istartswith'
     )
 

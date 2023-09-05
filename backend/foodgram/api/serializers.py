@@ -156,12 +156,7 @@ class AddIngredientSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def validate_amount(data):
-        return validate_less_than_zero(
-            data,
-            message=(
-                'Количество ингредиента не может быть меньше или равно нулю.'
-            )
-        )
+        return validate_less_than_zero(data)
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
@@ -186,15 +181,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def validate_cooking_time(time):
-        if time <= 0:
-            raise serializers.ValidationError(
-                'Время готовки не может быть меньше или равно нулю.'
-            )
-        if not time:
-            raise serializers.ValidationError(
-                'Обязательное поле.'
-            )
-        return time
+        return (validate_required(time)
+                and validate_less_than_zero(time))
 
     @staticmethod
     def validate_tags(tag):
