@@ -25,10 +25,22 @@ class Base64ImageField(serializers.ImageField):
 
 class CustomCreateUserSerializer(UserCreateSerializer):
     """Создание пользователя."""
+    password = serializers.CharField(write_only=True)
 
     class Meta:
         model = CustomUser
         fields = '__all__'
+
+    def create(self, validated_data):
+        user = CustomUser.objects.get_or_create(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
 
 
 class CustomUserSerializer(UserSerializer):
