@@ -6,7 +6,6 @@ from django.conf import settings
 from recipes.models import Ingredient
 
 
-
 class Command(BaseCommand):
     help = 'load ingredients from csv'
 
