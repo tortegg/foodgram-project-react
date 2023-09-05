@@ -1,8 +1,8 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import (Tag, Recipe, Ingredient,
-                     RecipeIngredient, FavoriteRecipe, ShoppingCart)
+from .models import (FavoriteRecipe, Ingredient, Recipe, RecipeIngredient,
+                     ShoppingCart, Tag)
 
 
 class RecipeIngredientInLine(admin.TabularInline):

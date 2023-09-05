@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from users.models import CustomUser, FollowUser
 
-from .filters import RecipeFilter, IngredientFilterSet
+from .filters import IngredientFilterSet, RecipeFilter
 from .pagination import CustomPaginator
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (FollowListSerializer, FollowSerializer,

@@ -1,9 +1,8 @@
-from django.db import models
-from django.contrib.auth import get_user_model
 from colorfield.fields import ColorField
-
-from utils.validators import validate_less_than_zero, validate_required
+from django.contrib.auth import get_user_model
+from django.db import models
 from utils.static_params import LEN_200
+from utils.validators import validate_less_than_zero, validate_required
 
 User = get_user_model()
 

@@ -3,16 +3,13 @@ import base64
 from django.core.files.base import ContentFile
 from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from recipes.models import (FavoriteRecipe, Ingredient, Recipe,
+                            RecipeIngredient, ShoppingCart, Tag)
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
-
-from recipes.models import (
-    FavoriteRecipe, Ingredient, Recipe,
-    RecipeIngredient, ShoppingCart, Tag
-)
 from users.models import CustomUser, FollowUser
-from utils.validators import validate_less_than_zero, validate_required
 from utils.static_params import LEN_200
+from utils.validators import validate_less_than_zero, validate_required
 
 
 class Base64ImageField(serializers.ImageField):
