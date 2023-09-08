@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
-import rest_framework.permissions
 from dotenv import find_dotenv, load_dotenv
 
 load_dotenv(find_dotenv())
