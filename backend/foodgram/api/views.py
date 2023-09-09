@@ -16,9 +16,15 @@ from users.models import CustomUser, FollowUser
 from .filters import IngredientFilterSet, RecipeFilter
 from .pagination import CustomPaginator
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (FollowListSerializer, FollowSerializer,
-                          OutIngredientSerializer, RecipeCreateSerializer,
-                          RecipeSerializer, TagSerializer, CustomUserListSerializer)
+from .serializers import (
+    FollowListSerializer,
+    FollowSerializer,
+    OutIngredientSerializer,
+    RecipeCreateSerializer,
+    RecipeSerializer,
+    TagSerializer,
+    CustomUserListSerializer
+)
 
 
 class CustomUserViewSet(UserViewSet):
