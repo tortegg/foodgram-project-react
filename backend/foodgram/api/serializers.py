@@ -5,8 +5,8 @@ from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (FavoriteRecipe, Ingredient, Recipe,
                             RecipeIngredient, ShoppingCart, Tag)
-from rest_framework import serializers
-from rest_framework.validators import ValidationError
+from rest_framework import serializers, status
+from rest_framework.response import Response
 from users.models import CustomUser, FollowUser
 from utils.static_params import LEN_200
 from utils.validators import validate_less_than_zero, validate_required
@@ -204,11 +204,14 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def validate_ingredients(data):
         ids = [item['id'] for item in data]
         if len(ids) != len(set(ids)):
-            raise serializers.ValidationError(
-                {
-                    'ingredients':
-                        'Ингредиенты в рецепте не должны повторяться.'
-                }
+            # raise serializers.ValidationError(
+            #     {
+            #         'ingredients':
+            #             'Ингредиенты в рецепте не должны повторяться.'
+            #     }
+            # )
+            return Response(
+                'ingredient error', status=status.HTTP_400_BAD_REQUEST
             )
         return validate_required(data)
 
