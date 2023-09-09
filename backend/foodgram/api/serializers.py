@@ -3,6 +3,7 @@ import base64
 from django.core.files.base import ContentFile
 from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from django.core.exceptions import ValidationError
 from recipes.models import (FavoriteRecipe, Ingredient, Recipe,
                             RecipeIngredient, ShoppingCart, Tag)
 from rest_framework import serializers
@@ -42,6 +43,7 @@ class CustomCreateUserSerializer(UserCreateSerializer):
 
 
 class CustomUserListSerializer(UserSerializer):
+    """Получение списка пользователей."""
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
@@ -61,7 +63,7 @@ class CustomUserListSerializer(UserSerializer):
 
 
 class CustomUserSerializer(CustomUserListSerializer):
-    """Получение списка пользователей."""
+    """Получение списка подписок пользователей."""
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -200,8 +202,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def validate_ingredients(data):
         ids = [item['id'] for item in data]
         if len(ids) != len(set(ids)):
-            raise serializers.ValidationError(
-                'Ингредиенты в рецепте не должны повторяться.'
+            return ValidationError(
+                message='Ингредиенты в рецепте не должны повторяться.'
             )
         return validate_required(data)
 
