@@ -3,10 +3,17 @@ from django.contrib import admin
 from .models import CustomUser, FollowUser
 
 
-# Register your models here.
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        'id',
+        'username',
+        'first_name',
+        'last_name',
+        'email'
+    )
+    search_fields = ('username', 'email',)
+    list_filter = ('username', 'email',)
 
 
 @admin.register(FollowUser)

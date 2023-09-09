@@ -174,6 +174,7 @@ class ShoppingCart(models.Model):
     class Meta:
         ordering = ('-id',)
         verbose_name = 'Корзина покупок'
+        verbose_name_plural = 'Корзина покупок'
 
     def __str__(self):
         return f'Рецепт {self.recipe} в корзине у {self.user}'

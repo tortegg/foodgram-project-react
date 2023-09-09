@@ -30,18 +30,6 @@ class CustomCreateUserSerializer(UserCreateSerializer):
         model = CustomUser
         fields = '__all__'
 
-
-class CustomUserSerializer(UserSerializer):
-    """Получение списка пользователей."""
-    is_subscribed = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = CustomUser
-        fields = (
-            'id', 'email', 'username',
-            'first_name', 'last_name', 'is_subscribed',
-        )
-
     def validate(self, obj):
         usernames = [
             'me', 'set_password', 'subscriptions', 'subscribe'
@@ -52,6 +40,17 @@ class CustomUserSerializer(UserSerializer):
             )
         return obj
 
+
+class CustomUserListSerializer(UserSerializer):
+    is_subscribed = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'id', 'email', 'username',
+            'first_name', 'last_name', 'is_subscribed',
+        )
+
     def get_is_subscribed(self, author):
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:
@@ -59,6 +58,18 @@ class CustomUserSerializer(UserSerializer):
         return FollowUser.objects.filter(
             user=request.user, author=author
         ).exists()
+
+
+class CustomUserSerializer(CustomUserListSerializer):
+    """Получение списка пользователей."""
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = CustomUser
+        fields = (
+            'id', 'email', 'username',
+            'first_name', 'last_name', 'is_subscribed',
+        )
 
     @staticmethod
     def get_recipes_count(obj):
@@ -336,7 +347,7 @@ class FollowSerializer(serializers.ModelSerializer):
                 author=data['author']
         ):
             raise serializers.ValidationError({
-                'errors': 'Вы уже подписан.'
+                'errors': 'Вы уже подписаны.'
             })
         return data
 
