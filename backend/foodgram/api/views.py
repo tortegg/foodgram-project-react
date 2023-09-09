@@ -90,6 +90,11 @@ class RecipeViewSet(ModelViewSet):
             return RecipeSerializer
         return RecipeCreateSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class
+        serializer.is_valid()
+        serializer.save()
+
     @action(methods=['POST', 'DELETE'], detail=True,
             permission_classes=(IsAuthenticated,))
     def favorite(self, request, pk=None):
