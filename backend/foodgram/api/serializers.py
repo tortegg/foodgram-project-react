@@ -10,7 +10,7 @@ from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 from users.models import CustomUser, FollowUser
 from utils.static_params import LEN_200
-from utils.validators import validate_less_than_zero, validate_required, validate_ingredients
+from utils.validators import validate_less_than_zero, validate_required
 
 
 class Base64ImageField(serializers.ImageField):
@@ -200,7 +200,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def validate_ingredients(data):
-        return validate_required(data) and validate_ingredients(data)
+        ids = [item['id'] for item in data]
+        if len(ids) != len(set(ids)):
+            return serializers.ValidationError({
+                'error': 'Ингредиенты в рецепте не должны повторяться.'
+            })
+        return validate_required(data)
 
     @staticmethod
     def validate_name(name):
@@ -215,9 +220,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         recipe.tags.set(tags)
         ingredients_to_add = [
             RecipeIngredient(
-                ingredient=ingredient.get('id'),
+                ingredient=ingredient['id'],
                 recipe=recipe,
-                amount=ingredient.get('amount'),
+                amount=ingredient['amount'],
             ) for ingredient in ingredients
         ]
         RecipeIngredient.objects.bulk_create(ingredients_to_add)
@@ -332,20 +337,35 @@ class FollowSerializer(serializers.ModelSerializer):
     class Meta:
         model = FollowUser
         fields = ('user', 'author')
+        validators = [
+            serializers.UniqueTogetherValidator(
+                queryset=FollowUser.objects.all(),
+                fields=('user', 'author',),
+                message='Вы уже подписаны на этого пользователя'
+            )
+        ]
 
+    # def validate(self, data):
+    #     get_object_or_404(CustomUser, username=data['author'])
+    #     if self.context['request'].user == data['author']:
+    #         raise serializers.ValidationError({
+    #             'error': 'На себя подписаться нельзя.'
+    #         })
+    #     if FollowUser.objects.filter(
+    #             user=self.context['request'].user,
+    #             author=data['author']
+    #     ):
+    #         raise serializers.ValidationError({
+    #             'error': 'Вы уже подписаны.'
+    #         })
+    #     return data
     def validate(self, data):
-        get_object_or_404(CustomUser, username=data['author'])
-        if self.context['request'].user == data['author']:
-            raise serializers.ValidationError({
-                'errors': 'На себя подписаться нельзя.'
-            })
-        if FollowUser.objects.filter(
-                user=self.context['request'].user,
-                author=data['author']
-        ):
-            raise serializers.ValidationError({
-                'errors': 'Вы уже подписаны.'
-            })
+        if data['user'] == data['author']:
+            raise serializers.ValidationError(
+                {
+                    'error': 'Нельзя подписаться на себя!'
+                }
+            )
         return data
 
     def to_representation(self, instance):

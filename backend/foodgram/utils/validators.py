@@ -15,12 +15,3 @@ def validate_required(value):
             message='Обязательное поле.'
         )
     return value
-
-
-def validate_ingredients(data):
-    ids = [item['id'] for item in data]
-    if len(ids) != len(set(ids)):
-        return ValidationError(
-            message='Ингредиенты в рецепте не должны повторяться.'
-        )
-    return data
