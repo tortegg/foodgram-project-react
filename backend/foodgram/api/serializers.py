@@ -58,7 +58,7 @@ class CustomUserListSerializer(UserSerializer):
         user = request.user
         if request is None or request.user.is_anonymous:
             return False
-        return user.followed.filter(
+        return user.follower.filter(
             author=author
         ).exists()
 
