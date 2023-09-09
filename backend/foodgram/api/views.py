@@ -25,8 +25,7 @@ class CustomUserViewSet(UserViewSet):
     """ViewSet пользователя."""
     permission_classes = (AllowAny,)
     pagination_class = CustomPaginator
-    serializer_class = (CustomUserListSerializer,)
-
+    serializer_class = CustomUserListSerializer
 
     @action(['GET'], detail=False,
             permission_classes=(IsAuthenticated,))
