@@ -18,13 +18,15 @@ from .pagination import CustomPaginator
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (FollowListSerializer, FollowSerializer,
                           OutIngredientSerializer, RecipeCreateSerializer,
-                          RecipeSerializer, TagSerializer)
+                          RecipeSerializer, TagSerializer, CustomUserListSerializer)
 
 
 class CustomUserViewSet(UserViewSet):
     """ViewSet пользователя."""
     permission_classes = (AllowAny,)
     pagination_class = CustomPaginator
+    serializer_class = (CustomUserListSerializer,)
+
 
     @action(['GET'], detail=False,
             permission_classes=(IsAuthenticated,))
