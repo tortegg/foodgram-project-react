@@ -55,10 +55,11 @@ class CustomUserListSerializer(UserSerializer):
 
     def get_is_subscribed(self, author):
         request = self.context.get('request')
+        user = request.user
         if request is None or request.user.is_anonymous:
             return False
-        return FollowUser.objects.filter(
-            user=request.user, author=author
+        return user.followed.filter(
+            author=author
         ).exists()
 
 
@@ -202,7 +203,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def validate_ingredients(data):
         ids = [item['id'] for item in data]
         if len(ids) != len(set(ids)):
-            return serializers.ValidationError({
+            raise serializers.ValidationError({
                 'error': 'Ингредиенты в рецепте не должны повторяться.'
             })
         return validate_required(data)
@@ -341,7 +342,7 @@ class FollowSerializer(serializers.ModelSerializer):
             serializers.UniqueTogetherValidator(
                 queryset=FollowUser.objects.all(),
                 fields=('user', 'author',),
-                message='Вы уже подписаны на этого пользователя'
+                message='Вы уже подписаны на этого пользователя.'
             )
         ]
 
