@@ -211,7 +211,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             #     }
             # )
             return Response(
-                'ingredient error', status=status.HTTP_400_BAD_REQUEST
+                data.errors, status=status.HTTP_400_BAD_REQUEST
             )
         return validate_required(data)
 
