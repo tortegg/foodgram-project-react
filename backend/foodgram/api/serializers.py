@@ -35,7 +35,7 @@ class CustomCreateUserSerializer(UserCreateSerializer):
             'me', 'set_password', 'subscriptions', 'subscribe'
         ]
         if self.initial_data.get('username') in usernames:
-            raise ValidationError(
+            raise serializers.ValidationError(
                 {'Нельзя использовать это имя пользователя'}
             )
         return obj
@@ -157,7 +157,9 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 class AddIngredientSerializer(serializers.ModelSerializer):
     """Создание ингредиента при создании рецепта."""
-    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all()
+    )
     amount = serializers.IntegerField(write_only=True)
 
     class Meta:
@@ -202,10 +204,10 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def validate_ingredients(data):
         ids = [item['id'] for item in data]
         if len(ids) != len(set(ids)):
-            raise ValidationError(
+            raise serializers.ValidationError(
                 {
                     'ingredients':
-                        ['Ингредиенты в рецепте не должны повторяться.']
+                        'Ингредиенты в рецепте не должны повторяться.'
                 }
             )
         return validate_required(data)
@@ -350,9 +352,9 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if data['user'] == data['author']:
-            raise ValidationError(
+            raise serializers.ValidationError(
                 {
-                    'follow error': ['Нельзя подписаться на себя!']
+                    'follow_error': 'Нельзя подписаться на себя!'
                 }
             )
         return data
