@@ -3,11 +3,10 @@ import base64
 from django.core.files.base import ContentFile
 from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from django.core.exceptions import ValidationError
 from recipes.models import (FavoriteRecipe, Ingredient, Recipe,
                             RecipeIngredient, ShoppingCart, Tag)
 from rest_framework import serializers
-from rest_framework.generics import get_object_or_404
+from rest_framework.validators import ValidationError
 from users.models import CustomUser, FollowUser
 from utils.static_params import LEN_200
 from utils.validators import validate_less_than_zero, validate_required
@@ -36,7 +35,7 @@ class CustomCreateUserSerializer(UserCreateSerializer):
             'me', 'set_password', 'subscriptions', 'subscribe'
         ]
         if self.initial_data.get('username') in usernames:
-            raise serializers.ValidationError(
+            raise ValidationError(
                 {'Нельзя использовать это имя пользователя'}
             )
         return obj
@@ -203,9 +202,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def validate_ingredients(data):
         ids = [item['id'] for item in data]
         if len(ids) != len(set(ids)):
-            raise serializers.ValidationError({
-                'error': 'Ингредиенты в рецепте не должны повторяться.'
-            })
+            raise ValidationError(
+                {
+                    'ingredients':
+                        ['Ингредиенты в рецепте не должны повторяться.']
+                }
+            )
         return validate_required(data)
 
     @staticmethod
@@ -346,25 +348,11 @@ class FollowSerializer(serializers.ModelSerializer):
             )
         ]
 
-    # def validate(self, data):
-    #     get_object_or_404(CustomUser, username=data['author'])
-    #     if self.context['request'].user == data['author']:
-    #         raise serializers.ValidationError({
-    #             'error': 'На себя подписаться нельзя.'
-    #         })
-    #     if FollowUser.objects.filter(
-    #             user=self.context['request'].user,
-    #             author=data['author']
-    #     ):
-    #         raise serializers.ValidationError({
-    #             'error': 'Вы уже подписаны.'
-    #         })
-    #     return data
     def validate(self, data):
         if data['user'] == data['author']:
-            raise serializers.ValidationError(
+            raise ValidationError(
                 {
-                    'error': 'Нельзя подписаться на себя!'
+                    'follow error': ['Нельзя подписаться на себя!']
                 }
             )
         return data
