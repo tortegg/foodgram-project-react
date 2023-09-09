@@ -10,7 +10,7 @@ from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 from users.models import CustomUser, FollowUser
 from utils.static_params import LEN_200
-from utils.validators import validate_less_than_zero, validate_required
+from utils.validators import validate_less_than_zero, validate_required, validate_ingredients
 
 
 class Base64ImageField(serializers.ImageField):
@@ -200,12 +200,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def validate_ingredients(data):
-        ids = [item['id'] for item in data]
-        if len(ids) != len(set(ids)):
-            return ValidationError(
-                message='Ингредиенты в рецепте не должны повторяться.'
-            )
-        return validate_required(data)
+        return validate_required(data) and validate_ingredients(data)
 
     @staticmethod
     def validate_name(name):
