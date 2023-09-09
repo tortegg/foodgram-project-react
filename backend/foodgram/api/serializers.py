@@ -200,18 +200,14 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def validate_tags(tag):
         return validate_required(tag)
 
-    @staticmethod
-    def validate_ingredients(data):
-        ids = [item['id'] for item in data]
+    def validate(self, data):
+        ids = [item['id'] for item in data['ingredients']]
         if len(ids) != len(set(ids)):
-            # raise serializers.ValidationError(
-            #     {
-            #         'ingredients':
-            #             'Ингредиенты в рецепте не должны повторяться.'
-            #     }
-            # )
-            return Response(
-                data.errors, status=status.HTTP_400_BAD_REQUEST
+            raise serializers.ValidationError(
+                {
+                    'ingredients':
+                        'Ингредиенты в рецепте не должны повторяться.'
+                }
             )
         return validate_required(data)
 
