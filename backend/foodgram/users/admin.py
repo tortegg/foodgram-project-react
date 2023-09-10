@@ -18,4 +18,8 @@ class CustomUserAdmin(admin.ModelAdmin):
 
 @admin.register(FollowUser)
 class CustomUserFollow(admin.ModelAdmin):
-    pass
+    list_display = (
+        'id',
+        'user',
+        'author'
+    )
