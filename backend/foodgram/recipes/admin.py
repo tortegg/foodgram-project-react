@@ -73,10 +73,4 @@ class IngredientInRecipe(admin.ModelAdmin):
     list_display = (
         'id',
         'recipe',
-        'in_recipe',
     )
-
-    def in_recipe(self, obj):
-        print(obj)
-        list = [ingr['id'] for ingr in obj['ingredient']]
-        return list
