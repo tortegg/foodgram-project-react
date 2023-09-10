@@ -6,6 +6,7 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (FavoriteRecipe, Ingredient, Recipe,
                             RecipeIngredient, ShoppingCart, Tag)
 from rest_framework import serializers
+from django.core.exceptions import ValidationError
 from users.models import CustomUser, FollowUser
 from utils.static_params import LEN_200
 from utils.validators import validate_less_than_zero, validate_required
@@ -202,12 +203,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         ids = [item['id'] for item in data['ingredients']]
         if len(ids) != len(set(ids)):
-            raise serializers.ValidationError(
-                {
-                    'ingredients':
-                        'Ингредиенты в рецепте не должны повторяться.'
-                }
-            )
+            raise ValidationError('error')
         return validate_required(data)
 
     @staticmethod
