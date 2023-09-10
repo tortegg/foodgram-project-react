@@ -69,8 +69,8 @@ class ShoppingCartAdmin(admin.ModelAdmin):
 
 @admin.register(RecipeIngredient)
 class IngredientInRecipe(admin.ModelAdmin):
-    inlines = (RecipeIngredientInLine,)
     list_display = (
         'id',
         'recipe',
+        'ingredient'
     )
