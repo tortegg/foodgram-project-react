@@ -129,11 +129,13 @@ class FavoriteRecipe(models.Model):
     """Модель избранного рецепта."""
     user = models.ForeignKey(
         User,
+        related_name='favorite_user',
         verbose_name='Пользователь',
         on_delete=models.CASCADE
     )
     recipe = models.ForeignKey(
         Recipe,
+        related_name='favorite_recipe',
         verbose_name='Рецепт',
         on_delete=models.CASCADE
     )
