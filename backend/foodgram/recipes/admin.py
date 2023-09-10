@@ -69,8 +69,14 @@ class ShoppingCartAdmin(admin.ModelAdmin):
 
 @admin.register(RecipeIngredient)
 class IngredientInRecipe(admin.ModelAdmin):
+    inlines = (RecipeIngredientInLine,)
     list_display = (
         'id',
         'recipe',
-        'ingredient',
+        'in_recipe',
     )
+
+    def in_recipe(self, obj):
+        print(obj)
+        list = [ingr['id'] for ingr in obj['ingredient']]
+        return list
