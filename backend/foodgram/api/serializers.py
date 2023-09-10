@@ -35,9 +35,7 @@ class CustomCreateUserSerializer(UserCreateSerializer):
             'me', 'set_password', 'subscriptions', 'subscribe'
         ]
         if self.initial_data.get('username') in usernames:
-            raise serializers.ValidationError(
-                {'Нельзя использовать это имя пользователя'}
-            )
+            raise ValidationError('Нельзя использовать это имя пользователя.')
         return obj
 
 
@@ -203,7 +201,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         ids = [item['id'] for item in data['ingredients']]
         if len(ids) != len(set(ids)):
-            raise ValidationError('error')
+            raise ValidationError('Ингредиенты не должны повторяться.')
         return validate_required(data)
 
     @staticmethod
@@ -346,11 +344,7 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if data['user'] == data['author']:
-            raise serializers.ValidationError(
-                {
-                    'follow_error': 'Нельзя подписаться на себя!'
-                }
-            )
+            raise ValidationError('Нельзя подписаться на себя.')
         return data
 
     def to_representation(self, instance):
