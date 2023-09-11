@@ -27,10 +27,10 @@ class RecipeAdmin(admin.ModelAdmin):
         'id',
         'name',
         'author',
-        'is_favorited'
+        'is_favorited',
     )
     list_filter = ('author', 'name', 'tags',)
-    search_fields = ('recipe__name', 'tags',)
+    search_fields = ('name__name', 'tags',)
 
     @admin.display(description='В избранном')
     def is_favorited(self, obj):
