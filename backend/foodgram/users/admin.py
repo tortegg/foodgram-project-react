@@ -23,4 +23,3 @@ class CustomUserFollow(admin.ModelAdmin):
         'user',
         'author'
     )
-
