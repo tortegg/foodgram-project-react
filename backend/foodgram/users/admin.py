@@ -23,3 +23,5 @@ class CustomUserFollow(admin.ModelAdmin):
         'user',
         'author'
     )
+    search_fields = ('username', 'author',)
+    list_filter = ('username', 'author',)
