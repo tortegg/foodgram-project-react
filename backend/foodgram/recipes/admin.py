@@ -29,7 +29,7 @@ class RecipeAdmin(admin.ModelAdmin):
         'author',
         'is_favorited',
     )
-    search_fields = ['name']
+    search_fields = ['name', 'author__username', 'tags']
     list_filter = ['author', 'name', 'tags']
 
     @admin.display(description='В избранном')
@@ -56,7 +56,7 @@ class FavoriteAdmin(admin.ModelAdmin):
         'recipe',
     )
     list_filter = ('user',)
-    search_fields = ('user', 'recipe',)
+    search_fields = ('user__username', 'recipe_name',)
 
 
 @admin.register(ShoppingCart)
@@ -67,7 +67,7 @@ class ShoppingCartAdmin(admin.ModelAdmin):
         'recipe',
     )
     list_filter = ('user',)
-    search_fields = ('user', 'recipe',)
+    search_fields = ('user__username', 'recipe__name',)
 
 
 @admin.register(RecipeIngredient)
@@ -78,4 +78,4 @@ class IngredientInRecipe(admin.ModelAdmin):
         'ingredient'
     )
     list_filter = ('recipe',)
-    search_fields = ('recipe', 'ingredient',)
+    search_fields = ('recipe__name', 'ingredient__name',)
