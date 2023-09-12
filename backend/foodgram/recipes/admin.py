@@ -20,7 +20,6 @@ class TagAdmin(admin.ModelAdmin):
     pass
 
 
-@admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientInLine,)
     list_display = (
@@ -30,7 +29,7 @@ class RecipeAdmin(admin.ModelAdmin):
         'is_favorited',
     )
     list_filter = ['author', 'name', 'tags']
-    search_fields = ['recipe__name', 'tags']
+    search_fields = ['name', 'tags', 'author']
 
     @admin.display(description='В избранном')
     def is_favorited(self, obj):
@@ -79,3 +78,6 @@ class IngredientInRecipe(admin.ModelAdmin):
     )
     list_filter = ('recipe',)
     search_fields = ('recipe', 'ingredient',)
+
+
+admin.site.register(Recipe, RecipeAdmin)
